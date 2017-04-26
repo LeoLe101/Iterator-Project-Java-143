@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SortedSet.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;IteratorProjects&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">cs143</a> &gt; <span class="el_source">SortedSet.java</span></div><h1>SortedSet.java</h1><pre class="source lang-java linenums">package cs143;
+
+import java.util.Iterator;
+import java.util.function.Consumer;
+
+/**
+ * This data-management class models a sorted set of Player objects.
+ *
+ * @author Phuc Hong Le
+ * @author
+ * @author
+ * @author
+ */
+public class SortedSet implements Iterable&lt;Player&gt; {
+
+    //fields
+    private Player[] players;
+    private int count;
+
+    /**
+     * Default constructor.
+     */
+<span class="fc" id="L23">    public SortedSet() {</span>
+<span class="fc" id="L24">        this.players = new Player[10];</span>
+<span class="fc" id="L25">    }</span>
+
+    /**
+     * Adds the given player to the set in sorted order. Does not add the player
+     * if the case-insensitive name already exists in the set. Calls growArray()
+     * if the addition of the player will exceed the size of the current array.
+     * Uses an insertion sort algorithm to place the new player in the correct
+     * position in the set, taking advantage of the private swapPlayers method
+     * in this class.
+     *
+     * @param player the player to add
+     * @return the index where the player was added, or -1 if not added
+     */
+    public int add(Player player) {
+<span class="fc" id="L39">        int result = -1;</span>
+<span class="fc" id="L40">        int pos = 0;</span>
+        //checking condition to add a new player
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (count &gt;= players.length) {</span>
+<span class="fc" id="L43">            growArray();</span>
+        }
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (this.find(player.getName()) == -1) {</span>
+            //add the player at the end of the array
+<span class="fc" id="L47">            players[count] = player;</span>
+<span class="fc" id="L48">            count++;</span>
+            //insertion sort the player for more than 1 player
+<span class="fc bfc" id="L50" title="All 2 branches covered.">            if (count &gt; 1) {</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">                for (int i = 0; i &lt; count; i++) {</span>
+<span class="fc" id="L52">                    pos = i;</span>
+<span class="fc bfc" id="L53" title="All 4 branches covered.">                    while (pos &gt; 0 &amp;&amp; players[pos].getScore() &gt; players[pos - 1].getScore()) {</span>
+<span class="fc" id="L54">                        swapPlayers(pos, pos - 1);</span>
+<span class="fc" id="L55">                        pos = pos - 1;</span>
+                    }
+                }
+            }
+            //find the index of the newly add player
+<span class="fc" id="L60">            result = this.find(player.getName());</span>
+        }
+<span class="fc" id="L62">        return result;</span>
+    }
+
+    /**
+     * Removes the player with the given case-insensitive name from the set.
+     *
+     * @param name the name of the player to remove
+     * @return true if removed, false if not found
+     */
+    public boolean remove(String name) {
+<span class="fc" id="L72">        int index = find(name);</span>
+        //case that the player is not found to remove
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (index == -1) {</span>
+<span class="fc" id="L75">            return false;</span>
+        } else {
+            //case that the player is found to remove
+<span class="fc" id="L78">            Player[] playerListShrink = new Player[players.length];</span>
+            //copy the array until the index
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            for (int i = 0; i &lt; index; i++) {</span>
+<span class="fc" id="L81">                playerListShrink[i] = players[i];</span>
+            }
+            //copy the rest of the array without copying the object
+<span class="fc bfc" id="L84" title="All 2 branches covered.">            for (int i = index; i &lt; count; i++) {</span>
+<span class="fc" id="L85">                playerListShrink[i] = players[i + 1];</span>
+            }
+<span class="fc" id="L87">            players = playerListShrink;</span>
+<span class="fc" id="L88">            count--;</span>
+<span class="fc" id="L89">            return true;</span>
+        }
+    }
+
+    /**
+     * Locates the player with the given case-insensitive name in the set.
+     *
+     * @param name the player's name
+     * @return the index where the player is stored, or -1 if not found
+     */
+    public int find(String name) {
+<span class="fc" id="L100">        int result = -1;</span>
+<span class="fc bfc" id="L101" title="All 4 branches covered.">        for (int i = 0; i &lt; count &amp;&amp; result &lt; 0; i++) {</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">            if (this.players[i].getName().equalsIgnoreCase(name)) {</span>
+<span class="fc" id="L103">                result = i;</span>
+            }
+        }
+<span class="fc" id="L106">        return result;</span>
+    }
+
+    /**
+     * Returns the player object stored at the given index.
+     *
+     * @param index the index from which to retrieve the player
+     * @return the player object, or null if index is out of bounds.
+     */
+    public Player get(int index) {
+        //in case that the index is larger or smaller than expected
+<span class="pc bpc" id="L117" title="1 of 4 branches missed.">        if (index &lt; count &amp;&amp; index &gt;= 0) {</span>
+<span class="fc" id="L118">            return players[index];</span>
+        } else {
+<span class="fc" id="L120">            return null;</span>
+        }
+    }
+
+    /**
+     * Provides access to the number of players currently in the set. Don't use
+     * it in the method because it is not efficient to do so!
+     *
+     * @return the number of players
+     */
+    public int size() {
+<span class="nc" id="L131">        return count;</span>
+    }
+
+    /**
+     * Provides access to the current capacity of the underlying array. Don't
+     * use it in the method because it is not efficient to do so!
+     *
+     * @return the capacity of the array
+     */
+    public int capacity() {
+<span class="fc" id="L141">        return players.length;</span>
+    }
+
+    /**
+     * Provides a default string representation of th sorted set. Takes
+     * advantage of Player's toString method to provide a single line String.
+     * Example: [ (Player: joe, Score: 100) (Player: fred, Score: 98) ]
+     *
+     * @return the string representing the entire set
+     */
+    @Override
+    public String toString() {
+        //toString for output
+<span class="fc" id="L154">        String stringOutPut = &quot;&quot;;</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">        for (int i = 0; i &lt; count; i++) {</span>
+<span class="fc" id="L156">            stringOutPut += &quot;(&quot; + players[i].toString() + &quot;) &quot;;</span>
+        }
+        //stringOutPut = stringOutPut.substring(0, stringOutPut.length());
+<span class="fc" id="L159">        return &quot;[ &quot; + stringOutPut + &quot;]&quot;;</span>
+    }
+
+    /**
+     * Private method used during sorting to swap players in the underlying
+     * array.
+     *
+     * @param i the first index
+     * @param j the second index
+     */
+    private void swapPlayers(int i, int j) {
+<span class="fc" id="L170">        Player temp = (Player) players[i]; //cast the element number into the Player Object</span>
+<span class="fc" id="L171">        players[i] = players[j];</span>
+<span class="fc" id="L172">        players[j] = temp;</span>
+<span class="fc" id="L173">    }</span>
+
+    /**
+     * Private method used to double the array if adding a new player will
+     * exceed the size of the current array.
+     */
+    private void growArray() {
+        //when the element is equal with the array's length, double the array
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">        if (count == players.length) {</span>
+<span class="fc" id="L182">            Player[] playerListDouble = new Player[players.length * 2];</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">            for (int i = 0; i &lt; players.length; i++) {</span>
+<span class="fc" id="L184">                playerListDouble[i] = players[i];</span>
+            }
+<span class="fc" id="L186">            players = playerListDouble;</span>
+        }
+<span class="fc" id="L188">    }</span>
+
+    //we need this iterator method for implementing Iterable for the whole class
+    //(SortedSet class). However, this method only exist when there 
+    //is a class which implements Iterator interface
+    public Iterator iterator() {
+<span class="fc" id="L194">        return new SortedSetIterator();</span>
+    }
+
+    //this is the class which implements the Iterator interface inside the class
+<span class="fc" id="L198">    public class SortedSetIterator implements java.util.Iterator&lt;Player&gt; {</span>
+        
+        //fields
+<span class="fc" id="L201">        private int curr = 0; //current index </span>
+
+        @Override
+        public boolean hasNext() {
+<span class="fc bfc" id="L205" title="All 2 branches covered.">            return (curr &lt; count);</span>
+        }
+
+        @Override
+        public Player next() {
+<span class="fc" id="L210">            return players[curr++];</span>
+        }
+
+        @Override
+        public void remove() {
+<span class="nc bnc" id="L215" title="All 2 branches missed.">            if (curr == 0) {</span>
+<span class="nc" id="L216">                return;</span>
+            }
+<span class="nc" id="L218">            Player p = get(curr - 1);</span>
+<span class="nc" id="L219">            SortedSet.this.remove(p.getName());</span>
+<span class="nc" id="L220">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>
